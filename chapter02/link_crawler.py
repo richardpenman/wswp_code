@@ -7,7 +7,7 @@ import robotparser
 import Queue
 
 
-def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, headers=None, user_agent='WebScrapingWithPython', proxy=None, num_retries=1):
+def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, scrape_callback=None, headers=None, user_agent='WebScrapingWithPython', proxy=None, num_retries=1):
     """Crawl from the given seed URL following links matched by link_regex
     """
     # the queue of URL's that still need to be crawled
@@ -30,6 +30,8 @@ def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, 
             throttle.wait(url)
             result = download(url, headers, proxy=proxy, num_retries=num_retries)
             links = []
+            if scrape_callback:
+                links.extend(scrape_callback(url, result['html']) or [])
 
             if depth != max_depth:
                 # can still crawl further
