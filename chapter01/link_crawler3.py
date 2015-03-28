@@ -2,7 +2,7 @@ import re
 import urlparse
 import urllib2
 import time
-import datetime
+from datetime import datetime
 import robotparser
 import Queue
 
@@ -23,19 +23,19 @@ def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, 
         headers['User-agent'] = user_agent
 
     while crawl_queue:
-        url = crawl_queue.popleft()
-        depth = seen[url]
+        url = crawl_queue.pop()
         # check url passes robots.txt restrictions
         if rp.can_fetch(user_agent, url):
             throttle.wait(url)
-            result = download(url, headers, proxy=proxy, num_retries=num_retries)
+            html = download(url, headers, proxy=proxy, num_retries=num_retries)
             links = []
 
+            depth = seen[url]
             if depth != max_depth:
                 # can still crawl further
                 if link_regex:
                     # filter for links matching our regular expression
-                    links.extend(link for link in get_links(result['html']) if re.match(link_regex, link))
+                    links.extend(link for link in get_links(html) if re.match(link_regex, link))
 
                 for link in links:
                     link = normalize(seed_url, link)
@@ -62,17 +62,17 @@ class Throttle:
         # amount of delay between downloads for each domain
         self.delay = delay
         # timestamp of when a domain was last accessed
-        self.domain_last_accessed = {}
+        self.domains = {}
         
     def wait(self, url):
         domain = urlparse.urlparse(url).netloc
-        last_accessed = self.domain_last_accessed.get(domain)
+        last_accessed = self.domains.get(domain)
 
         if self.delay > 0 and last_accessed is not None:
-            sleep_secs = self.delay - (datetime.datetime.now() - last_accessed).seconds
+            sleep_secs = self.delay - (datetime.now() - last_accessed).seconds
             if sleep_secs > 0:
                 time.sleep(sleep_secs)
-        self.domain_last_accessed[domain] = datetime.datetime.now()
+        self.domains[domain] = datetime.now()
 
 
 def download(url, headers, proxy, num_retries, data=None):
@@ -96,7 +96,7 @@ def download(url, headers, proxy, num_retries, data=None):
                 return download(url, headers, proxy, num_retries-1, data)
         else:
             code = None
-    return {'html': html, 'code': code}
+    return html
 
 
 def normalize(seed_url, link):
