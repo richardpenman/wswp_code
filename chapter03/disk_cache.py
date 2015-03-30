@@ -18,17 +18,17 @@ class DiskCache:
     The file path is formed from an md5 hash of the key.
 
     >>> cache = DiskCache()
-    >>> url = 'http://example.com/abc'
-    >>> result = {'html': '<html>abc</html>'}
+    >>> url = 'http://example.webscraping.com'
+    >>> result = {'html': '...'}
     >>> cache[url] = result
     >>> cache[url]['html'] == result['html']
     True
-    >>> cache = DiskCache(expires=timedelta(0))
+    >>> cache = DiskCache(expires=timedelta())
     >>> cache[url] = result
     >>> cache[url]
     Traceback (most recent call last):
      ...
-    KeyError: 'http://example.com/abc has expired'
+    KeyError: 'http://example.webscraping.com has expired'
     >>> cache.clear()
     """
 
@@ -49,10 +49,10 @@ class DiskCache:
         path = self.url_to_path(url)
         if os.path.exists(path):
             with open(path, 'rb') as fp:
-                dump = fp.read()
+                data = fp.read()
                 if self.compress:
-                    dump = zlib.decompress(dump)
-                result, timestamp = pickle.loads(dump)
+                    data = zlib.decompress(data)
+                result, timestamp = pickle.loads(data)
                 if self.has_expired(timestamp):
                     raise KeyError(url + ' has expired')
                 return result
@@ -69,11 +69,11 @@ class DiskCache:
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        dump = pickle.dumps((result, datetime.now()))
+        data = pickle.dumps((result, datetime.utcnow()))
         if self.compress:
-            dump = zlib.compress(dump)
+            data = zlib.compress(data)
         with open(path, 'wb') as fp:
-            fp.write(dump)
+            fp.write(data)
 
 
     def __delitem__(self, url):
@@ -108,7 +108,7 @@ class DiskCache:
     def has_expired(self, timestamp):
         """Return whether this timestamp has expired
         """
-        return datetime.now() > timestamp + self.expires
+        return datetime.utcnow() > timestamp + self.expires
 
 
     def clear(self):
