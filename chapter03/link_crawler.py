@@ -4,9 +4,10 @@ import urllib2
 import time
 import datetime
 import robotparser
+from downloader import Downloader
 
 
-def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, headers=None, user_agent='WebScrapingWithPython', proxy=None, num_retries=1, scrape_callback=None, cache=None):
+def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, user_agent='WebScrapingWithPython', proxies=None, num_retries=1, scrape_callback=None, cache=None):
     """Crawl from the given seed URL following links matched by link_regex
     """
     # the queue of URL's that still need to be crawled
@@ -16,42 +17,23 @@ def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, 
     # track how many URL's have been downloaded
     num_urls = 0
     rp = get_robots(seed_url)
-    throttle = Throttle(delay)
-    headers = headers or {}
-    if user_agent:
-        headers['User-agent'] = user_agent
+    D = Downloader(delay=delay, user_agent=user_agent, proxies=proxies, num_retries=num_retries, cache=cache)
 
     while crawl_queue:
         url = crawl_queue.pop()
         depth = seen[url]
         # check url passes robots.txt restrictions
         if rp.can_fetch(user_agent, url):
-            if cache:
-                try:
-                    result = cache[url]
-                except KeyError:
-                    # url is not available in cache 
-                    pass
-                else:
-                    if num_retries > 0 and 500 <= result['code'] < 600:
-                        # server error so ignore result from cache and re-download
-                        result = None
-            if result is None:
-                # failed to load from cache so need to download 
-                throttle.wait(url)
-                result = download(url, headers, proxy=proxy, num_retries=num_retries)
-                if cache:
-                    cache[url] = result
-
+            html = D(url)
             links = []
             if scrape_callback:
-                links.extend(scrape_callback(url, result['html']) or [])
+                links.extend(scrape_callback(url, html) or [])
 
             if depth != max_depth:
                 # can still crawl further
                 if link_regex:
                     # filter for links matching our regular expression
-                    links.extend(link for link in get_links(result['html']) if re.match(link_regex, link))
+                    links.extend(link for link in get_links(html) if re.match(link_regex, link))
 
                 for link in links:
                     link = normalize(seed_url, link)
@@ -70,49 +52,6 @@ def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, 
         else:
             print 'Blocked by robots.txt:', url
 
-
-class Throttle:
-    """Throttle downloading by sleeping between requests to same domain
-    """
-    def __init__(self, delay):
-        # amount of delay between downloads for each domain
-        self.delay = delay
-        # timestamp of when a domain was last accessed
-        self.domain_last_accessed = {}
-        
-    def wait(self, url):
-        domain = urlparse.urlparse(url).netloc
-        last_accessed = self.domain_last_accessed.get(domain)
-
-        if self.delay > 0 and last_accessed is not None:
-            sleep_secs = self.delay - (datetime.datetime.now() - last_accessed).seconds
-            if sleep_secs > 0:
-                time.sleep(sleep_secs)
-        self.domain_last_accessed[domain] = datetime.datetime.now()
-
-
-def download(url, headers, proxy, num_retries, data=None):
-    print 'Downloading:', url
-    request = urllib2.Request(url, data, headers)
-    opener = urllib2.build_opener()
-    if proxy:
-        proxy_params = {'https' if url.startswith('https') else 'http': proxy}
-        opener.add_handler(urllib2.ProxyHandler(proxy_params))
-    try:
-        response = opener.open(request)
-        html = response.read()
-        code = response.code
-    except urllib2.URLError as e:
-        print 'Download error:', e.reason
-        html = ''
-        if hasattr(e, 'code'):
-            code = e.code
-            if num_retries > 0 and 500 <= code < 600:
-                # retry 5XX HTTP errors
-                return download(url, headers, proxy, num_retries-1, data)
-        else:
-            code = None
-    return {'html': html, 'code': code}
 
 
 def normalize(seed_url, link):
