@@ -1,5 +1,6 @@
 import time
 import threading
+import urlparse
 #import Queue
 from downloader import Downloader
 

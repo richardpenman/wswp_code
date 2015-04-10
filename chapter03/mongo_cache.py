@@ -1,12 +1,11 @@
-#try:
-#    import cPickle as pickle
-#except ImportError:
-#    import pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+import zlib
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-#, errors
-#from bson.binary import Binary
-#import zlib
+from bson.binary import Binary
 
 
 class MongoCache:
@@ -22,7 +21,7 @@ class MongoCache:
     True
     >>> cache = MongoCache(expires=timedelta())
     >>> cache[url] = result
-    >>> # XXX every 60 seconds is purged http://docs.mongodb.org/manual/core/index-ttl/
+    >>> # every 60 seconds is purged http://docs.mongodb.org/manual/core/index-ttl/
     >>> import time; time.sleep(60)
     >>> cache[url] 
     Traceback (most recent call last):
@@ -54,9 +53,9 @@ class MongoCache:
         """Load value at this URL
         """
         record = self.db.webpage.find_one({'_id': url})
-        #return pickle.loads(zlib.decompress(record['result']))
         if record:
-            return record['result']
+            #return record['result']
+            return pickle.loads(zlib.decompress(record['result']))
         else:
             raise KeyError(url + ' does not exist')
 
@@ -64,8 +63,8 @@ class MongoCache:
     def __setitem__(self, url, result):
         """Save value for this URL
         """
-        record = {'result': result, 'timestamp': datetime.utcnow()}
-        #record = {'result': Binary(zlib.compress(pickle.dumps(result))), 'timestamp': datetime.utcnow()}
+        #record = {'result': result, 'timestamp': datetime.utcnow()}
+        record = {'result': Binary(zlib.compress(pickle.dumps(result))), 'timestamp': datetime.utcnow()}
         self.db.webpage.update({'_id': url}, {'$set': record}, upsert=True)
 
 

@@ -6,8 +6,14 @@ from datetime import datetime, timedelta
 import socket
 
 
+DEFAULT_AGENT = 'WebScrapingWithPython'
+DEFAULT_DELAY = 5
+DEFAULT_RETRIES = 1
+DEFAULT_TIMEOUT = 60
+
+
 class Downloader:
-    def __init__(self, delay=5, user_agent='WebScrapingWithPython', proxies=None, num_retries=1, timeout=60, cache=None):
+    def __init__(self, delay=DEFAULT_DELAY, user_agent=DEFAULT_AGENT, proxies=None, num_retries=DEFAULT_RETRIES, timeout=DEFAULT_TIMEOUT, cache=None):
         socket.setdefaulttimeout(timeout)
         self.throttle = Throttle(delay)
         self.user_agent = user_agent

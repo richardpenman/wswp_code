@@ -14,7 +14,7 @@ def threaded_crawler(seed_url, delay=5, cache=None, scrape_callback=None, user_a
     """
     # the queue of URL's that still need to be crawled
     crawl_queue = MongoQueue()
-    crawl_queue.clear()
+    #crawl_queue.clear()
     crawl_queue.push(seed_url)
     D = Downloader(cache=cache, delay=delay, user_agent=user_agent, proxies=proxies, num_retries=num_retries, timeout=timeout)
 
