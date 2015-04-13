@@ -13,12 +13,13 @@ DEFAULT_TIMEOUT = 60
 
 
 class Downloader:
-    def __init__(self, delay=DEFAULT_DELAY, user_agent=DEFAULT_AGENT, proxies=None, num_retries=DEFAULT_RETRIES, timeout=DEFAULT_TIMEOUT, cache=None):
+    def __init__(self, delay=DEFAULT_DELAY, user_agent=DEFAULT_AGENT, proxies=None, num_retries=DEFAULT_RETRIES, timeout=DEFAULT_TIMEOUT, opener=None, cache=None):
         socket.setdefaulttimeout(timeout)
         self.throttle = Throttle(delay)
         self.user_agent = user_agent
         self.proxies = proxies
         self.num_retries = num_retries
+        self.opener = opener
         self.cache = cache
 
 
@@ -49,7 +50,7 @@ class Downloader:
     def download(self, url, headers, proxy, num_retries, data=None):
         print 'Downloading:', url
         request = urllib2.Request(url, data, headers or {})
-        opener = urllib2.build_opener()
+        opener = self.opener or urllib2.build_opener()
         if proxy:
             proxy_params = {'https' if url.startswith('https') else 'http': proxy}
             opener.add_handler(urllib2.ProxyHandler(proxy_params))

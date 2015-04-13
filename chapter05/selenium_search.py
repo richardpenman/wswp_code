@@ -3,7 +3,7 @@ from selenium import webdriver
 
 def main():
     driver = webdriver.Firefox()
-    driver.get("http://example.webscraping.com/search")
+    driver.get('http://example.webscraping.com/search')
     driver.find_element_by_id('search_term').send_keys('.')
     driver.execute_script("document.getElementById('page_size').options[1].text = '1000'");
     driver.find_element_by_id('search').click()
