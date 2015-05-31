@@ -105,15 +105,16 @@ def load_ff_sessions(session_filename):
 
 
 def find_ff_sessions():
-    try:
-        filename = (
-            glob.glob(os.path.expanduser('~/.mozilla/firefox/*.default/sessionstore.js')) or \
-            glob.glob(os.path.expanduser('~/Library/Application Support/Firefox/Profiles/*.default/sessionstore.js')) or \
-            glob.glob(os.path.expanduser(r'~\AppData\Roaming\Mozilla\Firefox\Profiles\*.default\sessionstore.js'))
-        )[0]
-    except IndexError:
-        filename = None
-    return filename
+    paths = [
+        '~/.mozilla/firefox/*.default',
+        '~/Library/Application Support/Firefox/Profiles/*.default',
+        '%APPDATA%/Roaming/Mozilla/Firefox/Profiles/*.default'
+    ]
+    for path in paths:
+        filename = os.path.join(path, 'sessionstore.js')
+        matches = glob.glob(os.path.expanduser(filename))
+        if matches:
+            return matches[0]
 
 
 def main():
