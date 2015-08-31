@@ -14,6 +14,5 @@ def main(max_threads):
 
 
 if __name__ == '__main__':
-    # XXX proper argsparse
     max_threads = int(sys.argv[1])
     main(max_threads)

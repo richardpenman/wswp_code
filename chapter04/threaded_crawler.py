@@ -1,17 +1,13 @@
 import time
 import threading
 import urlparse
-#import Queue
 from downloader import Downloader
 
 SLEEP_TIME = 1
 
-# XXX 
-# - make more similar structure to threaded_crawler class
-# - need to use deque?
 
 
-def threaded_crawler(seed_url, delay=5, cache=None, scrape_callback=None, user_agent='WebScrapingWithPython', proxies=None, num_retries=1, max_threads=10, timeout=60):
+def threaded_crawler(seed_url, delay=5, cache=None, scrape_callback=None, user_agent='wswp', proxies=None, num_retries=1, max_threads=10, timeout=60):
     """Crawl this website in multiple threads
     """
     # the queue of URL's that still need to be crawled

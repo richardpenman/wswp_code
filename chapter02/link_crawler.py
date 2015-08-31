@@ -7,7 +7,7 @@ import robotparser
 import Queue
 
 
-def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, headers=None, user_agent='WebScrapingWithPython', proxy=None, num_retries=1, scrape_callback=None):
+def link_crawler(seed_url, link_regex=None, delay=5, max_depth=-1, max_urls=-1, headers=None, user_agent='wswp', proxy=None, num_retries=1, scrape_callback=None):
     """Crawl from the given seed URL following links matched by link_regex
     """
     # the queue of URL's that still need to be crawled
@@ -84,7 +84,7 @@ def download(url, headers, proxy, num_retries, data=None):
     request = urllib2.Request(url, data, headers)
     opener = urllib2.build_opener()
     if proxy:
-        proxy_params = {'https' if url.startswith('https') else 'http': proxy}
+        proxy_params = {urlparse.urlparse(url).scheme: proxy}
         opener.add_handler(urllib2.ProxyHandler(proxy_params))
     try:
         response = opener.open(request)

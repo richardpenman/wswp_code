@@ -37,7 +37,6 @@ def mechanize_edit():
     br['email'] = login.LOGIN_EMAIL
     br['password'] = login.LOGIN_PASSWORD
     response = br.submit()
-    html = response.read()
 
     # edit country
     br.open(COUNTRY_URL)

@@ -3,6 +3,7 @@
 import urllib2
 import lxml.html
 
+
 def scrape(html):
     tree = lxml.html.fromstring(html)
     td = tree.cssselect('tr#places_neighbours__row > td.w2p_fw')[0]

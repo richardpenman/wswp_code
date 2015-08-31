@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import socket
 
 
-DEFAULT_AGENT = 'WebScrapingWithPython'
+DEFAULT_AGENT = 'wswp'
 DEFAULT_DELAY = 5
 DEFAULT_RETRIES = 1
 DEFAULT_TIMEOUT = 60
@@ -52,7 +52,7 @@ class Downloader:
         request = urllib2.Request(url, data, headers or {})
         opener = self.opener or urllib2.build_opener()
         if proxy:
-            proxy_params = {'https' if url.startswith('https') else 'http': proxy}
+            proxy_params = {urlparse.urlparse(url).scheme: proxy}
             opener.add_handler(urllib2.ProxyHandler(proxy_params))
         try:
             response = opener.open(request)

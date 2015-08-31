@@ -54,6 +54,3 @@ def register(first_name, last_name, email, password, captcha_fn):
     response = opener.open(request)
     success = '/user/register' not in response.geturl()
     return success
-
-
-

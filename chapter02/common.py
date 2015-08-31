@@ -5,7 +5,7 @@ import urllib2
 
 def download(url, user_agent=None):
     print 'Downloading:', url
-    headers = {'User-agent': user_agent or 'WebScrapingWithPython'}
+    headers = {'User-agent': user_agent or 'wswp'}
     request = urllib2.Request(url, headers=headers)
     try:
         html = urllib2.urlopen(request).read()

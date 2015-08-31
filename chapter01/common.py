@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib2
+import urlparse
 
 
 def download1(url):
@@ -34,7 +35,7 @@ def download3(url, num_retries=2):
     return html
 
 
-def download4(url, user_agent='WebScrapingWithPython', num_retries=2):
+def download4(url, user_agent='wswp', num_retries=2):
     """Download function that includes user agent support"""
     print 'Downloading:', url
     headers = {'User-agent': user_agent}
@@ -51,14 +52,14 @@ def download4(url, user_agent='WebScrapingWithPython', num_retries=2):
     return html
 
 
-def download5(url, user_agent='WebScrapingWithPython', proxy=None, num_retries=2):
+def download5(url, user_agent='wswp', proxy=None, num_retries=2):
     """Download function with support for proxies"""
     print 'Downloading:', url
     headers = {'User-agent': user_agent}
     request = urllib2.Request(url, headers=headers)
     opener = urllib2.build_opener()
     if proxy:
-        proxy_params = {'https' if url.startswith('https') else 'http': proxy}
+        proxy_params = {urlparse.urlparse(url).scheme: proxy}
         opener.add_handler(urllib2.ProxyHandler(proxy_params))
     try:
         html = opener.open(request).read()

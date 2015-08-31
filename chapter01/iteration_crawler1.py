@@ -21,4 +21,3 @@ def iteration():
 
 if __name__ == '__main__':
     iteration()
-
