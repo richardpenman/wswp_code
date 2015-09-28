@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import csv
 import string
 from PIL import Image
 import pytesseract
@@ -22,6 +23,18 @@ def ocr(img):
     word = pytesseract.image_to_string(bw)
     ascii_word = ''.join(c for c in word if c in string.letters).lower()
     return ascii_word
+
+
+def test_samples():
+    """Test accuracy of OCR on samples images
+    """
+    correct = total = 0
+    for filename, text in csv.reader(open('samples/samples.csv')):
+        img = Image.open('samples/' + filename)
+        if ocr(img) == text:
+            correct += 1
+        total += 1
+    print 'Accuracy: %d/%d' % (correct, total)
 
 
 if __name__ == '__main__':
