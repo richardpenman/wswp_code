@@ -47,7 +47,7 @@ def download4(url, user_agent='wswp3', num_retries=2):
         response = http.request('get', url)
         html = response.data
         if num_retries > 0 and hasattr(response, 'status') and 500 <= response.status < 600:
-            html = download3(url, num_retries - 1)
+            html = download4(url, num_retries=num_retries - 1)
     except urllib3.exceptions.MaxRetryError as e:
         print('download error:', e)
         html = None
@@ -66,7 +66,7 @@ def download5(url, user_agent='wswp3', proxy=None, num_retries=2):
         response = http.request('get', url)
         html = response.data
         if num_retries > 0 and hasattr(response, 'status') and 500 <= response.status < 600:
-            html = download3(url, num_retries - 1)
+            html = download5(url, num_retries=num_retries - 1)
     except urllib3.exceptions.MaxRetryError as e:
         print('download error:', e)
         html = None
